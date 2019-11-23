@@ -1,0 +1,88 @@
+Detalii despre implementare: 
+
+STRUCTURILE FOLOSITE:
+ - o structura ce contine un camp char pt numele unei variabile si un camp int
+pentru valoarea asociata ei
+ - structura unei celule (struct celula)corespunzatoare unei liste simplu 
+inlantuite (contine un camp de tip structura pentru pastrarea informatiei 
+corespunzatoare acelei celule = variabila+valoare asociata si un camp 
+struct celula* pentru a face legatura cu celula urmatoare din lista)
+ - structura unui nod de arbore prin care se reprezinta expresia ceruta; contine
+un camp de tip char pentru stocarea fiecarui element(operator/operand)
+
+MAIN:
+ - deschid fisierul de intrare si fisierul de iesire primite ca parametri in
+linia de comanda si verific daca deschiderea s-a realizat cu succes
+ - citesc in variabila de tip int nr_asignari numarul de variabile carora le este
+asociata o valoare si apelez functia StocheazaAsignari pentru a le stoca intr-o
+lista
+ - citesc in variabila de tip int nr_expresii numarul de expresii ce trebuie 
+calculate si apelez functia Rezolvare pentru a realiza acest lucru
+ - eliberez memoria alocata pentru crearea listei in care am pastrat toate variabilele
+si valorile asociate lor
+ - inchid cele doua fisiere pe care le-am deschis la inceput
+
+FUNCTIILE APELATE:
+1. StocheazaAsignari
+ -> citesc toate variabilele si valorile corespunzatoare lor si le introduc
+in lista de asignari folosind functia InitListaVariabile
+		1.1 -> functia InitListaVariabile
+		 - stocheaza asignarile de variabile in celule adaugate la inceputul unei liste
+		 - aloc celula cu informatia corespunzatoare si o introduc in lista
+		1.2 -> functia AlocareCelula
+		 - aloca spatiu pentru celula corespunzatoare listei si pentru informatia
+		celulei reprezentata de o structura cu un camp char si unul int
+		 - completez campurile corespunzatoare cu informatiile dorite	
+2. Rezolvare
+ -> citeste cate o linie de (numarul de expresii) ori si construieste arborele
+pentru fiecare astfel de sir citit cu functia ConstrArb
+	   2.1 -> functia ConstrArb
+		- construieste arbore cu elementele continute de expresia ce trebuie
+		calculata, separate prin spatii
+		- cat timp elementul reprezinta o operatie arborele se construieste
+		la stanga prin recursivitate, pana la intalnirea unei variabile sau a unui numar, moment
+		in care incepe completarea arborelui la dreapta prin recursivitate
+		- in cazul in care aceasta operatie este sqrt se va completa in
+		continuare doar nodul stang
+		- folosesc functia verificare pentru a vedea daca elementul este o operatie	
+ -> consider o variabila ok initializata cu 0 pe care o voi modifica prin efect
+lateral in functia evaluare pentru a putea intrerupe evaluarea expresiei cand
+se intalneste un caz care impune asta
+ -> evaluez expresia si daca nu se intalnesc cazuri de eroare afisez rezultatul 
+expresiei in fisierul de iesire
+	   2.2 -> functia evaluare
+		- parcurg arborele pentru rezolvarea expresiei cerute
+		- intializez rezultate evaluare nod stanga si nod dreapta cu 0
+		- daca intalnesc o frunza verific daca informatia ei este un numar int
+		cu functia verificare_numar sau daca este o variabila ce se afla in lista 
+		asignarilor cu functia CautareAsignare si returnez valoarea sa numerica
+		cu functia format_int, altfel afisez mesaj de eroare si modific valoare lui
+		ok pentru a opri evaluarea expresiei
+			->functia verificare_numar
+					- verifica daca un char reprezinta un numar
+			->functia CautareAsignare
+					-cauta o variabila in lista de asignari si intoarce adresa 
+				celulei in care se gaseste
+			->functia format_int 
+					-intoarce valoarea sirului in format int(nr intreg)
+					-verific daca e numar cu valoarea verificare_numar si ii returnez
+				valoarea in acest caz cu functia valoare_numerica
+					-altfel inseamna ca e variabila si o caut in lista de asignari
+				dupa care ii intorc valoarea corespunzatoare
+		- daca nu s-a intalnit pana acum un caz de eroare calculez valoarea nodului 
+		din stanga prin apelarea recursiva a functiei evaluare
+		- daca exista nodul din dreapta si nu s-a intalnit pana acum un caz de eroare
+		calculez valoarea nodului din dreapta prin apelarea recursiva a functiei evaluare
+		- dupa ce evaluez nodul din stanga si cel din dreapta, daca nu intalnesc
+		nici un caz de eroare, atunci calculez valoarea expresiei in functie de
+		operatia indicata de nodul radacina si daca intalnesc cazuri de eroare
+		returnez mesaj de eroare si modific valoarea lui ok pentru a intrerupe
+		continuarea evaluarii expresiei
+ -> eliberez memoria alocata pentru construirea arborelui de expresie folosind
+functia DistrArb
+	   2.3 -> functia DistrArb	
+				- verific daca arborele este vid
+				- daca nu eliberez toate nodurile cu functia distruge care
+				elibereaza prin recursivitate spatiul alocat
+3. DistrugeLista
+ -> elibereaza spatiul alocat pentru lista de variabile si valori asociate
